@@ -1,0 +1,83 @@
+---
+
+- name: install autossh
+  apt:
+    name:  autossh
+    state: present
+    cache_valid_time: 3600
+    update_cache: yes
+
+- name: create mail key folder /usr/local/keys
+  file:
+    path:  /usr/local/keys
+    state: directory
+
+- name: add email.gateway.aandd.io to root known_hosts list
+  lineinfile:
+    dest: /root/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -p 14103 -t ecdsa email.gateway.aandd.io') }}"
+    regexp: "email.gateway.aandd.io"
+    mode:  "0600"
+
+
+- name: copy private keys to access to mail server
+  copy:
+    src:  "exim/{{ item }}"
+    dest: /usr/local/keys
+    owner: root
+    group: root
+    mode: 0400
+  with_items: [ mail.pk, mail.pub ]
+
+# This task will be failed in host use systemd
+- name: push smarthost tunnel upstart script
+  copy:
+    src:  exim/smarthost-tunnel.conf
+    dest: /etc/init/smarthost-tunnel.conf
+  when: ansible_service_mgr != "systemd"
+
+- name: push smarthost tunnel systemd service
+  copy:
+    src:  exim/smarthost-tunnel.service
+    dest: /etc/systemd/system/smarthost-tunnel.service
+  when: ansible_service_mgr == "systemd"
+
+- name: ensure smarthost tunnel service is running (systemd)
+  systemd:
+    name: smarthost-tunnel
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+    masked: no
+  when: ansible_service_mgr == "systemd"
+
+- name:  ensure smarthost tunnel service is running (upstart)
+  service:
+    name:  smarthost-tunnel
+    state: started
+  when: ansible_service_mgr != "systemd"
+
+- name: install exim4
+  apt:
+    name:  exim4
+    state: present
+    cache_valid_time: 3600
+    update_cache: yes
+
+- name: push default exim4 config
+  template:
+    src:  exim/default-exim4.j2
+    dest: /etc/default/exim4
+
+- name: push exim4 performance tweak
+  template:
+    src:  exim/exim4-perf-optimize.j2
+    dest: /etc/exim4/conf.d/main/00_exim4-perf-optimize
+
+- name: push exim4 main config
+  template:
+    src:  exim/update-exim4.conf.j2
+    dest: /etc/exim4/update-exim4.conf.conf
+  notify: update exim4 configuration

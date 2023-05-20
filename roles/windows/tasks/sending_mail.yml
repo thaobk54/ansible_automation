@@ -1,0 +1,13 @@
+- debug:
+    var: ansible_facts
+- name: Copy file power to folder
+  vars:
+    proxmox_ip: "{{ ansible_facts['ip_addresses'][1] }}"
+  template:
+    src: "send-mail.ps1.j2"
+    dest: "{{ ansible_user_dir }}/send-mail.ps1"
+    owner: "{{ ansible_ssh_user }}"
+
+- name: Run command
+  win_shell: "Powershell.exe -File {{ ansible_user_dir }}/send-mail.ps1"
+    

@@ -1,0 +1,7 @@
+---
+- name: restart confluence
+  systemd:
+    name: confluence
+    state: restarted
+    enabled: true
+    daemon_reload: yes

@@ -1,0 +1,22 @@
+---
+# Variable configuration.
+- name: Define postgresql_packages_10.
+  set_fact:
+    deb_file_download: "{{ __deb_file_download_10 | list }}"
+  when: postgresql_version in ['10.23', '10']
+
+- name: Define postgresql_packages_11.
+  set_fact:
+    deb_file_download: "{{ __deb_file_download_11 | list }}"
+  when: postgresql_version in ['11.19', '11']
+
+
+- name: Define postgresql_packages_12.
+  set_fact:
+    deb_file_download: "{{ __deb_file_download_12 | list }}"
+  when: postgresql_version in ['12.2', '12']
+
+- name: Define postgresql_packages_12.
+  set_fact:
+    deb_file_download: "{{ __deb_file_download_13 | list }}"
+  when: postgresql_version in ['13.10', '13']

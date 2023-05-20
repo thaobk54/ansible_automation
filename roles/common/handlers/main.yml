@@ -1,0 +1,36 @@
+---
+
+- name: restart rsyslog
+  service:
+    name:  rsyslog
+    state: restarted
+
+- name: restart fail2ban
+  service:
+    name:  fail2ban
+    state: restarted
+
+- name: update exim4 configuration
+  tags: [ skip_ansible_lint ]
+  shell: update-exim4.conf
+  notify: restart exim4
+
+- name: restart exim4
+  service:
+    name:  exim4
+    state: restarted
+
+- name: restart smarthost tunnel
+  service:
+    name:  smarthost-tunnel
+    state: restarted
+
+- name: restart sshd
+  service:
+    name: ssh
+    state: restarted
+
+- name: restart cron
+  service:
+    name: cron
+    state: restarted

@@ -1,0 +1,23 @@
+---
+
+  - name: install pip lib dependencies
+    apt: "name={{ item }} state=present cache_valid_time=3600 update_cache=yes"
+    with_items:
+      - python-dev
+      - libffi-dev
+      - libssl-dev
+
+  - name: install latest pip
+    shell: bash -c "python <(curl https://bootstrap.pypa.io/get-pip.py)"
+    tags: [ skip_ansible_lint ]
+    args:
+      warn: False
+
+  - name: ensure python use pyopenssl for HTTPS connection
+    pip:
+      name:  "{{ item }}"
+      state: present
+    with_items:
+      - pyopenssl
+      - ndg-httpsclient
+      - pyasn1

@@ -1,0 +1,61 @@
+---
+
+- name: Confluence | Template server configuration
+  template:
+    src: conf/server.xml.j2
+    dest: "{{ confluence_installation_dir }}/conf/server.xml"
+    backup: yes
+    mode: 0755
+    owner: "{{ confluence_user }}"
+    group: "{{ confluence_group }}"
+  notify: restart confluence
+  tags:
+    - config
+
+- name: Confluence | Template confluence init configuration
+  template:
+    src: conf/confluence-init.properties.j2
+    dest: "{{ confluence_installation_dir }}/confluence/WEB-INF/classes/confluence-init.properties"
+    backup: yes
+    mode: 0644
+    owner: "{{ confluence_user }}"
+    group: "{{ confluence_group }}"
+  when: confluence_database_configuration
+  notify: restart confluence
+  tags:
+    - config
+
+- name: Confluence | Update permission
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ confluence_user }}"
+    group: "{{ confluence_group }}"
+    recurse: yes
+  with_items: 
+    - "{{ confluence_home_dir }}"
+    - "{{ confluence_installation_dir }}"
+
+# - name: Confluence | Template database configuration
+#   template:
+#     src: conf/confluence.cfg.xml.j2
+#     dest: "{{ confluence_home_dir }}/confluence.cfg.xml"
+#     backup: yes
+#     mode: 0644
+#     owner: "{{ confluence_user }}"
+#     group: "{{ confluence_group }}"
+#   when: confluence_database_configuration
+#   notify: restart confluence
+#   tags:
+#     - config
+
+- name: Confluence | Template daemon script
+  template:
+    src: systemd/confluence.service.j2
+    dest: /lib/systemd/system/confluence.service
+    mode: 0644
+    owner: "{{ confluence_user }}"
+    group: "{{ confluence_group }}"
+  notify: restart confluence
+  tags:
+    - config

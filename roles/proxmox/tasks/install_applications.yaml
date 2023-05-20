@@ -1,0 +1,43 @@
+---
+# Install Docker CE
+# - name: Fix TLS
+#   shell: update-ca-certificates --fresh && export SSL_CERT_DIR=/etc/ssl/certs
+#   become: yes
+
+# - name: Install Docker CE
+#   include_role:
+#     name: geerlingguy.docker
+#   vars:
+#     docker_users:
+#       - "{{ ssh_user | default('ubuntu') }}"
+#     docker_edition: 'ce'
+#     docker_packages:
+#     - "docker-{{ docker_edition }}"
+#     - "docker-{{ docker_edition }}-cli"
+#     - "docker-{{ docker_edition }}-rootless-extras"
+#     docker_packages_state: present
+#     docker_install_compose: true
+#     docker_compose_version: "v2.10.2"
+#     docker_compose_arch: x86_64
+#     docker_compose_path: /usr/local/bin/docker-compose
+#     docker_service_manage: true
+#     docker_service_state: started
+#     docker_service_enabled: true
+#     docker_restart_handler_state: restarted
+#   when: (applications | select('search','Docker') | list | length > 0)
+
+# What is difference between import_role and include_role
+
+- name: Install Mysql
+  vars:
+    - mysql_user_name: "{{ database_user }}"
+    - mysql_user_password: "{{ database_password }}"
+    - version_mysql_install: "{{ db_version }}"
+  include_role:
+    name: mysql
+  when: db_engine == "mysql"
+
+- name: Install Postgresql
+  include_role:
+    name: postgres
+  when: db_engine == "postgresql"

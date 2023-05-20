@@ -1,0 +1,36 @@
+[alias]
+  co = checkout
+  ci = commit
+  st = status
+  br = branch
+  fix = mergetool
+  ls = log --pretty=format:\"%C(white)%h%Creset %s %C(black)- %an (%ar)%Creset\" --graph
+
+[color]
+  branch = auto
+  diff = auto
+  grep = auto
+  status = auto
+  showbranch = auto
+  ui = auto
+
+[push]
+  default = current
+
+[merge]
+  tool = diffconflicts
+[mergetool]
+  keepBackup = false
+[mergetool "diffconflicts"]
+  cmd = diffconflicts vim $BASE $LOCAL $REMOTE $MERGED
+  trustExitCode = true
+
+[diff]
+  mnemonicprefix = true
+  renames = copies
+  tool = vimdiff
+[difftool "vimdiff"]
+  cmd = vimdiff $LOCAL $REMOTE
+
+[core]
+  preloadindex = true

@@ -1,0 +1,15 @@
+[Unit]
+Description=Atlassian JIRA
+After=network.target
+
+[Service]
+Type=forking
+Restart=on-failure
+PIDFile={{ jsm_installation_dir }}/work/catalina.pid
+User={{ jsm_user }}
+ExecStart={{ jsm_installation_dir }}/bin/start-jira.sh
+ExecStop={{ jsm_installation_dir }}/bin/stop-jira.sh
+LimitNOFILE={{ jsm_service_max_nofiles }}
+
+[Install]
+WantedBy=multi-user.target

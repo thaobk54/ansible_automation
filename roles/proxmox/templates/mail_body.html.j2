@@ -1,0 +1,262 @@
+<div
+      id=":8o"
+      style="width: 520px;margin: auto;"
+    >
+      <div
+        style="
+          padding-top: 0px;
+          font-family: Helvetica neue, Helvetica, Arial, Verdana, sans-serif;
+          color: #205081;
+          font-size: 20px;
+          line-height: 32px;
+          text-align: left;
+          font-weight: bold;
+        "
+      >
+        <span>Your Server is created successfully</span>
+      </div>
+      <hr
+        color="#cccccc"
+        size="1"
+        style="
+          margin-top: 19px;
+          margin-bottom: 8px;
+
+          width: 100%;
+        "
+      />
+      <div>
+        <div
+          style="
+            padding-top: 20px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span>Hi {{ ssh_user }},</span>
+        </div>
+
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span
+            >You recently created a new VM. Here is your ssh credential to
+            login, and as such should be kept secret.</span
+          >
+        </div>
+        {% if mail == "confluence" %}
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span>You can log in {{ proxmox_ip }}:8090 </span>
+        </div>
+        {% elif mail == "jira" %}
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span>You can log in {{ proxmox_ip }}:8080</span>
+        </div>
+        {% else %}
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+           <span>Server: {{ proxmox_ip }}</span>
+        </div>
+        {% endif %}
+
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span>User: {{ ssh_user }}</span>
+        </div>
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span>Password: {{ ssh_password }}</span>
+        </div>
+        {% if mail == "confluence" %}
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span>Confluence database user: {{ confluence_database_username }}</span>
+        </div>
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span>Confluence database password: {{ confluence_database_password }}</span>
+        </div>
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span> Database port: 5432 & database hostname: localhost & database type: postgresql</span>
+        </div>
+        {% elif mail == "jira"%}
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span>Jira database user: {{ jira_database_username }}</span>
+        </div>
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span>Jira database password: {{ jira_database_password }}</span>
+        </div>
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span> Database port: 5432 & database hostname: localhost & database type: postgresql</span>
+        </div>
+        {% else %}
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span>Database user: {{ database_user }}</span>
+        </div>
+        <div
+        style="
+          padding-top: 10px;
+          font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+          color: #333333;
+          font-size: 14px;
+          line-height: 24px;
+          text-align: left;
+          font-weight: none;
+        "
+        >
+        <span>Database password: {{ database_password }}</span>
+        </div>
+        {% endif %}
+        <div
+          style="
+            padding-top: 10px;
+            font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+            color: #333333;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: left;
+            font-weight: none;
+          "
+        >
+          <span>Cheers,</span><br />
+          <span>The Agileops Devops</span>
+        </div>
+        <hr
+          color="#cccccc"
+          size="1"
+          style="
+            margin-top: 19px;
+            margin-bottom: 8px;
+
+            width: 100%;
+          "
+        />
+      </div>
+    </div>

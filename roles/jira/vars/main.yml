@@ -1,0 +1,31 @@
+---
+jira_user: jira
+jira_group: jira
+
+jira_package: atlassian-jira-software-{{ jira_version }}-x64.bin
+jira_url: https://product-downloads.atlassian.com/software/jira/downloads/atlassian-jira-software-9.6.0-x64.bin
+jira_installation_dir: /opt/atlassian/jira
+jira_home_dir: /var/atlassian/application-data/jira
+jira_download_dir: /download
+
+jira_database_type: postgres72
+jira_database_type_mysql_57: mysql57
+jira_database_type_mysql_8: mysql8
+jira_database_type_mssql: mssql
+jira_database_url: jdbc:postgresql://{{ jira_database_host }}:{{ jira_database_port }}/{{ jira_database_name }}
+jira_database_mysql_url: jdbc:mysql://{{ jira_database_host }}:{{ jira_database_port }}/{{ jira_database_name }}?useUnicode=true&amp;characterEncoding=UTF8&amp;sessionVariables=default_storage_engine=InnoDB
+jira_database_mssql_url: jdbc:sqlserver://{{ jira_database_host }}:{{ jira_database_port }};databaseName={{ jira_database_name }}
+
+jira_database_validation_query: "select 1"
+jira_database_validation_query_timeout: 3
+jira_database_driver_class: "org.postgresql.Driver"
+jira_database_mssql_driver_class: "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+jira_database_mysql_57_driver_class: "com.mysql.jdbc.Driver"
+jira_database_mysql_8_driver_class: "com.mysql.cj.jdbc.Driver"
+
+# Jira callback
+jira_issue_key: false
+
+jira_transition_id: false
+
+jira_reporter_id: false

@@ -1,0 +1,9 @@
+- name: Define clone id
+  set_fact:
+    clone_id: 9007
+  when: windows_type == "windows-10"
+
+- name: Define clone id
+  set_fact:
+    clone_id: 9003
+  when: windows_type == "windows-server"

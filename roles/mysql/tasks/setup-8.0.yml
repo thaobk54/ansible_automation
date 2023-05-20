@@ -1,0 +1,53 @@
+---
+- name: Check if MySQL is already installed.
+  stat:
+    path: "{{ mysql_config_file }}"
+  register: mysql_installed
+
+- name: Update apt cache if MySQL is not yet installed.
+  apt: update_cache=yes
+  changed_when: False
+  when: not mysql_installed.stat.exists
+
+- name: Ensure MySQL Python libraries are installed.
+  apt:
+    name: "{{ mysql_python_package_debian }}"
+    state: present
+  register: apt_res
+  retries: 10
+  delay: 30
+  until: apt_res is succeeded
+
+- name: Ensure MySQL packages are installed.
+  ansible.builtin.apt:
+    name: "{{ mysql_packages }}"
+    state: present
+    policy_rc_d: 101
+  register: deb_mysql_install_packages
+  register: apt_res_2
+  retries: 10
+  delay: 30
+  until: apt_res_2 is succeeded
+# Because Ubuntu starts MySQL as part of the install process, we need to stop
+# mysql and remove the logfiles in case the user set a custom log file size.
+- name: Ensure MySQL is stopped after initial install.
+  service: "name={{ mysql_daemon }} state=stopped"
+  when: not mysql_installed.stat.exists
+
+- name: Delete innodb log files created by apt package after initial install.
+  file:
+    path: "{{ mysql_datadir }}/{{ item }}"
+    state: absent
+  with_items:
+    - ib_logfile0
+    - ib_logfile1
+  when: not mysql_installed.stat.exists
+
+#Open firewall with port 3306 on Debian
+- name: Open port 3306 on Debian
+  become: true
+  iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 3306
+    jump: ACCEPT  

@@ -1,0 +1,14 @@
+- name: Sending ssh credential using Gmail SMTP servers
+  community.general.mail:
+    host: smtp.gmail.com
+    port: 587
+    username: devops@agileops.vn
+    password: "{{ gmail_app_password }}"
+    to: "{{ ssh_user }} <{{ to_email }}>"
+    subject: Your new VM is ready
+    body: "{{ lookup('template','templates/mail_body.html.j2') }}"
+    subtype: html
+    charset: utf8
+  vars:
+    proxmox_ip: "{{ ansible_ssh_host  }}"
+  when: (ssh_user is defined) and (ssh_user|length > 0) and (ssh_password is defined) and (ssh_password|length > 0)

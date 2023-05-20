@@ -1,0 +1,7 @@
+postgres_hosts:
+  hosts:
+    confluence_db:
+      ansible_host: 192.168.3.180
+      ansible_user: ubuntu
+      ansible_ssh_pass: 12345678
+      ansible_python_interpreter: /usr/bin/python3

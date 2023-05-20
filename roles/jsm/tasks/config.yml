@@ -1,0 +1,48 @@
+---
+
+# - name: jsm | Template daemon script
+#   template:
+#     src: systemd/jsm.service.j2
+#     dest: /lib/systemd/system/jsm.service
+#     mode: 0644
+#     owner: "{{ jsm_user }}"
+#     group: "{{ jsm_group }}"
+#   # notify: restart jsm
+#   tags:
+#     - config
+
+- name: jsm | Template server configuration
+  template:
+    src: conf/server.xml.j2
+    dest: "{{ jsm_installation_dir }}/conf/server.xml"
+    backup: yes
+    mode: 0755
+    owner: "{{ jsm_user }}"
+    group: "{{ jsm_group }}"
+  # notify: restart jsm
+  tags:
+    - config
+
+- name: jsm | Template database configuration
+  template:
+    src: "conf/dbconfig.{{ jsm_database_engine }}.xml.j2"
+    dest: "{{ jsm_home_dir }}/dbconfig.xml"
+    backup: yes
+    mode: 0644
+    owner: "{{ jsm_user }}"
+    group: "{{ jsm_group }}"
+  when: jsm_database_configuration
+  # notify: restart jsm
+  tags:
+    - config
+
+- name: jsm | Update permission
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ jsm_user }}"
+    group: "{{ jsm_group }}"
+    recurse: yes
+  with_items: 
+    - "{{ jsm_home_dir }}"
+    - "{{ jsm_installation_dir }}"

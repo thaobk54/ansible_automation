@@ -1,0 +1,45 @@
+---
+
+- name: install useful admin packages
+  action: apt name={{item}} state=present cache_valid_time=3600 force=yes update_cache=yes
+  with_items:
+    - build-essential
+    - aptitude
+    - apt-transport-https
+    - sudo
+    - lsb-release
+    - vim
+    - wget
+    - curl
+    - git-core
+    - locate
+    - nmap
+    - telnet
+    - traceroute
+    - net-tools
+    - mtr-tiny
+    - ncdu
+    - nano
+    - htop
+    - screen
+    - tmux
+    - md5deep
+    - dnsutils
+    - cron
+    - dialog
+    - file
+    - tree
+    - apt-utils
+    - bsdutils
+    - tig
+    - lftp
+    - silversearcher-ag
+
+# nmap: port scanner
+# mtr-tiny: a network diagnostic tool (combine ping and traceroute)
+# screen, tmux: terminal multiplexer
+# bsdutils: cracklib-runtime require logger from bsdutils package (see F#13187)
+# ncdu: disk usage analyzer
+# tig: Text-mode interface for git
+# lftp: FTP/SFTP commandline client
+# silversearcher-ag: (ag for short) code searching

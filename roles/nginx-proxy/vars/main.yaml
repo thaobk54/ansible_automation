@@ -1,0 +1,14 @@
+register_domain: test.aandd.io
+
+forward_scheme: http
+
+forward_host: 192.168.3.169
+
+forward_port: 8080
+
+caching_enabled: false
+
+certificate_id: 0
+
+ssl_forced: false
+

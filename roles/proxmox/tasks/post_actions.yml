@@ -1,0 +1,35 @@
+---
+# register domain
+- name: Register domain
+  include_role:
+      name: nginx-proxy
+  vars:
+      register_domain: "{{ domain }}"
+      forward_port: "{{ local_port }}"
+      forward_host: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+      forward_scheme: "https"
+      ssl_forced: true
+      certificate_id: 58
+  when: allow_public_access|bool == true
+
+# - name: Comment Issue
+#   uri:
+#       url: "{{ jira_main_url }}/rest/api/3/issue/{{ jira_issue_key }}/comment"
+#       method: POST
+#       body: "{{ lookup('template', './jira/callback_comment.json.j2') }}"
+#       body_format: json
+#       headers:
+#           Authorization: "Basic {{ jira_token }}"
+#       status_code: 201
+#   when: (jira_issue_key is defined) and (jira_issue_key|length > 0)
+
+# - name: Transition Issue
+#   uri:
+#       url: "{{ jira_main_url }}/rest/api/3/issue/{{ jira_issue_key }}/transitions"
+#       method: POST
+#       body: "{{ lookup('template', './jira/transition.json.j2') }}"
+#       body_format: json
+#       headers:
+#           Authorization: "Basic {{ jira_token }}"
+#       status_code: 204
+#   when: (jira_issue_key is defined) and (jira_issue_key|length > 0)

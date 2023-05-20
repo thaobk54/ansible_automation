@@ -1,0 +1,23 @@
+{
+    "domain_names": [
+        "{{ register_domain }}"
+    ],
+    "forward_scheme": "{{ forward_scheme }}",
+    "forward_host": "{{ forward_host }}",
+    "forward_port": {{ forward_port }},
+    "access_list_id": "0",
+    "certificate_id": {{ certificate_id }},
+    "meta": {
+        "letsencrypt_agree": false,
+        "dns_challenge": false
+    },
+    "advanced_config": "",
+    "locations": [],
+    "block_exploits": false,
+    "caching_enabled": {{ caching_enabled }},
+    "allow_websocket_upgrade": false,
+    "http2_support": {{ ssl_forced }},
+    "hsts_enabled": {{ ssl_forced }},
+    "hsts_subdomains": false,
+    "ssl_forced": {{ ssl_forced }}
+}

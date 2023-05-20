@@ -1,0 +1,9 @@
+---
+- include_tasks: variables.yml
+- include_tasks: postgresql-9.6.yml
+  when: postgresql_version == '9.6'
+- include_tasks: postgresql-another-version.yml
+  when: postgresql_version != '9.6'
+
+
+

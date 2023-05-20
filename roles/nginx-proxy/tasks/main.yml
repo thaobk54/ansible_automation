@@ -1,0 +1,41 @@
+---
+- name: Get Token
+  uri:
+    url: "{{ nginx_proxy_base_endpoint }}/tokens"
+    method: POST
+    body_format: form-urlencoded
+    body:
+    - [ identity, "{{ nginx_proxy_api_user }}" ]
+    - [ secret, "{{ nginx_proxy_api_password }}" ]
+    return_content: yes
+  register: auth
+
+- name: Get current domains
+  uri:
+    url: "{{ nginx_proxy_base_endpoint }}/nginx/proxy-hosts?expand=owner,access_list,certificate"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ auth.json.token }}"
+    return_content: yes
+  register: domains_resp
+
+- name: Delete existing domains
+  uri:
+    url: "{{ nginx_proxy_base_endpoint }}/nginx/proxy-hosts/{{ item.id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ auth.json.token }}"
+  vars:
+    jmesquery: "[?domain_names[?@==`{{ register_domain }}`]]"
+    data: "{{ domains_resp.json | json_query(jmesquery)}}"
+  loop: "{{ data }}"
+
+- name: Register new domain
+  uri:
+    url: "{{ nginx_proxy_base_endpoint }}/nginx/proxy-hosts"
+    method: POST
+    body: "{{ lookup('template', './proxy_hosts.json.j2') }}"
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ auth.json.token }}"
+    status_code: 201

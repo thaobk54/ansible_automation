@@ -1,0 +1,28 @@
+---
+jsm_version: 4.19.1
+
+jsm_server_port: 8006
+jsm_connector_port: 8081
+jsm_scheme: https
+jsm_domain: jsm800.aandd.io
+
+jsm_database_engine: postgresql # mysql, mssql
+jsm_database_engine_version: 9.6
+jsm_database_username: jsm
+jsm_database_password: 12345678
+jsm_database_name: jsm
+jsm_database_host: localhost
+jsm_database_port: 5432
+
+jsm_jvm_support_recommended_args: "-Datlassian.plugins.enable.wait=300"
+jsm_required_args: "-Djava.awt.headless=true -Datlassian.standalone=jsm -Dorg.apache.jasper.runtime.BodyContentImpl.LIMIT_BUFFER=true -Dmail.mime.decodeparameters=true -Dorg.dom4j.factory=com.atlassian.core.xml.InterningDocumentFactory"
+jsm_jmx_enabled: false
+jsm_disable_notifications: true
+jsm_jvm_minimum_memory: "2048m"
+jsm_jvm_maximum_memory: "4096m"
+
+jsm_proxy_name:
+jsm_context_path:
+jsm_database_configuration: true
+
+jsm_service_max_nofiles: 16384

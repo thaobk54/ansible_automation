@@ -1,0 +1,25 @@
+# Add additional users to the vm
+- block:
+  - name: Make sure we have a 'wheel' group
+    group:
+      name: wheel
+      state: present
+
+  - name: Allow 'wheel' group to have passwordless sudo
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%wheel'
+      line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'
+
+  - name: Add sudoers users to wheel group
+    ansible.builtin.user:
+      name: "{{ ssh_user }}"
+      password: "{{ ssh_password | password_hash('sha512')  }}"
+      shell: /bin/bash
+      groups: wheel
+      append: yes
+      state: present
+      createhome: yes
+

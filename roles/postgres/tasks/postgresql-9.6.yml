@@ -1,0 +1,38 @@
+---
+- name: Install dependency packages
+  package:
+    name: "{{ item }}"
+  with_items: "{{ dependency_pkgs }}"
+  register: res_apt
+  until: "res_apt.stderr is undefined or '/var/lib/dpkg/lock-frontend' not in res_apt.stderr"
+  retries: 10
+  delay: 30
+
+- name: Add APT key for PostgreSQL keyserver
+  ansible.builtin.apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Add APT repo for PostgreSQL
+  ansible.builtin.apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release|lower }}-pgdg main
+    state: present
+
+- name: Install PostgreSQL
+  package:
+    name: "{{ item }}-{{ postgresql_version }}"
+  with_items: "{{ postgresql_pkgs }}"
+
+- name: Install PostgreSQL locales
+  locale_gen: 
+    name: "{{ item }}"
+    state: present
+  register: locale_gen_result
+  with_items: "{{ postgresql_locales }}"
+ 
+- name: Force-restart PostgreSQL after new locales are generated.
+  service:
+    name: postgresql
+    state: restarted
+  when: locale_gen_result.changed
+

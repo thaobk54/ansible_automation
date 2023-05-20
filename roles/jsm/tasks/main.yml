@@ -1,0 +1,63 @@
+---
+- name: JSM | Create PostgreSQL user/database
+  include_tasks: postgres.yml
+  when: jsm_database_engine == "postgresql"
+  tags:
+    - postgres
+
+- name: JSM | Install dependencies
+  ansible.builtin.apt:
+    name: fontconfig
+    state: present
+    
+- name: JSM | Create path for JSM's folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ jsm_download_dir }}"
+  tags:
+    - install
+
+- name: JSM | Download package
+  get_url:
+    dest: "{{ jsm_download_dir }}/jsm_installer"
+    url: "{{ jsm_url }}"
+    mode: '0755'
+  register: jsm_downloaded
+  tags:
+    - install
+
+- name: JSM | Update response
+  template:
+    src: response.varfile.j2
+    dest: "/tmp/response.varfile"
+    mode: 0644
+  tags:
+    - install
+
+- name: Get stats of the FS object
+  ansible.builtin.stat:
+    path: "{{ jsm_installation_dir }}"
+  register: p
+
+- name: JSM | Installation
+  shell: "{{ jsm_download_dir }}/jsm_installer -q -varfile /tmp/response.varfile;"
+  when: p.stat.isdir is not defined
+
+- name: JSM | Config
+  include_tasks: config.yml
+  tags:
+    - config
+
+- name: JSM | Configuring service
+  ansible.builtin.service:
+    name: JSM
+    state: restarted
+
+- name: JSM | Allow all access to JSM port
+  ufw:
+    rule: allow
+    port: "{{ jsm_connector_port }}"
+    proto: tcp

@@ -1,0 +1,22 @@
+#Unattended-Upgrade::Origins-Pattern
+# Automatically upgrade packages from these origin patterns
+# e.g.: 'o=Debian,a=stable', 'o=Debian,a=stable-updates'
+#
+# Left unset, distribution-specific defaults will be used through
+# __unattended_origins_patterns variable only if this variable
+#   is not provided externally
+# REFS https://github.com/ansible/ansible/issues/8121
+unattended_origins_patterns:
+  - 'o=Debian,a=${distro_codename}'
+  - 'o=Debian,a=${distro_codename}-updates'
+  - 'o=Debian,a=${distro_codename},label=Debian-Security'
+  - 'o=Debian,a=oldstable'
+  - 'o=Debian,a=oldstable-updates'
+  - 'o=Debian,a=oldstable,label=Debian-Security'
+  - 'o=apt.postgresql.org,a=${distro_codename}-pgdg'
+  - 'o=nginx,a=stable,label=nginx'
+  - 'o=Node Source,label=Node Source'
+  - 'o=Docker,label=Docker APT Repository'
+  - 'o=Proxmox,label=Proxmox Debian repository'
+  - 'o=Treasure Data,label=Treasure Data'
+  - 'site=packages.elastic.co'

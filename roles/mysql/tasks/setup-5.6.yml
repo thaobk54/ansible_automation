@@ -1,0 +1,91 @@
+---
+- name: Download MySQL 5.6 bundle
+  command: "wget -O {{ ansible_env.PWD }}/mysql-server_5.6.48-1debian9_amd64.deb-bundle.tar https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-server_5.6.48-1debian9_amd64.deb-bundle.tar"
+
+
+- name: Extract MySQL 5.6 bundle
+  unarchive:
+    src: "{{ ansible_env.PWD }}/mysql-server_5.6.48-1debian9_amd64.deb-bundle.tar"
+    dest: "{{ ansible_env.PWD }}"
+    copy: no
+
+# - name: Install required lib package
+#   apt:
+#     name: "{{ item }}"
+#     state: present
+#   with_items:
+#     - libaio1
+#     - libncurses5
+#   register: result
+#   until: result is succeeded
+#   retries: 10
+#   delay: 30
+
+- name: select version os
+  shell: echo "mysql-community-server mysql-community-server/root-pass password {{ mysql_root_password }}" | sudo debconf-set-selections;
+
+- name: select version mysql
+  shell: echo "mysql-community-server mysql-community-server/re-root-pass password {{ mysql_root_password }}" | sudo debconf-set-selections;
+  register: select
+  until: select.stderr | length == 0
+  retries: 10
+  delay: 5
+- name: Ensure MySQL Python libraries are installed.
+  apt:
+    name: "{{ mysql_python_package_debian }}"
+    state: present
+  register: apt_res
+  retries: 10
+  delay: 30
+  until: apt_res is succeeded
+
+# - name: Set MySQL server root password
+#   become: true
+#   debconf:
+#     name: mysql-server-5.6
+#     question: "{{ item.question }}"
+#     value: "{{ item.value }}"
+#     vtype: password
+#   with_items:
+#     - { question: "mysql-server/root_password", value: "{{ mysql_root_password }}" }
+#     - { question: "mysql-server/root_password_again", value: "{{ mysql_root_password }}" }
+
+# - name: Install MySQL 5.6 common
+#   environment:
+#     DEBIAN_FRONTEND: noninteractive
+#   become: true
+#   retries: 10
+#   delay: 30
+#   until: '"dpkg: error: dpkg frontend lock is locked by another process" not in dpkg_result.stderr'
+#   shell: "dpkg -i {{ ansible_env.PWD }}/mysql-common_5.6.48-1debian9_amd64.deb"
+#   register: dpkg_result
+#   ignore_errors: yes
+
+- name: Install MySQL 5.6 server
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  become: true
+  retries: 10
+  delay: 30
+  until: '"dpkg: error: dpkg frontend lock is locked by another process" not in dpkg_result.stderr'
+  shell: "dpkg -i {{ ansible_env.PWD }}/*.deb"
+  register: dpkg_result
+  ignore_errors: yes
+
+
+
+# - name: Install MySQL 5.6 lib
+#   environment:
+#     DEBIAN_FRONTEND: noninteractive
+#   become: true
+#   retries: 10
+#   delay: 30
+#   until: '"dpkg: error: dpkg frontend lock is locked by another process" not in dpkg_result.stderr'
+#   shell: "dpkg -i {{ ansible_env.PWD }}/libmysqlclient18_5.6.48-1debian9_amd64.deb"
+#   register: dpkg_result
+#   ignore_errors: yes
+
+
+- name: Fix broken dependencies
+  become: true
+  command: "apt --fix-broken install -y"

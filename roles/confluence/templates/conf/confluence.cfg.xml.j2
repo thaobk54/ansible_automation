@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<confluence-configuration>
+  <setupStep>complete</setupStep>
+  <setupType>custom</setupType>
+  <buildNumber>8506</buildNumber>
+  <properties>
+    <property name="admin.ui.allow.daily.backup.custom.location">false</property>
+    <property name="admin.ui.allow.manual.backup.download">false</property>
+    <property name="admin.ui.allow.site.support.email">false</property>
+    <property name="atlassian.license.message">AAABdA0ODAoPeNpVUV1vgjAUfe+vaLKX7WFbwQ+cSZMxYM4paFDniy8dXqSxFFYKmf9+FTGZyU2Te 2567jnn3q2zGn8yiYmDyct40B+TIfZWa2wT20JHOH2BqnghqTUkxCGjXs9CUZ1/g1qkm8rMqEWQV 0jNEh2xHOiMg8bRoUBJIdMng/IGqFY1oGWtkoxV4DMN9Ez/SEw5aM4TkBUEvyVXp3ZYS8FzrmF/Z Q5CxgU9GurX8yOzp6TIkbh8/GBVRkOPeO9BL09g4sTLrRM0PxMRN8NJuo08HodutnEzcRjOnLfS5 8fnzC0nxWc8mw72ffKz2VFkVkgNksnkvxSjs9fpbA2tNFMa1MVRp3zq0/nUXwXRo00Glk2cATINv QEW6sAkr5g+Z+keuIBFWSFPQYvcRjK6rOrY16cS2mS9RRgGsTd151fn19vYyIcqUbxs2U1mqajB+ MD3K1ANqAdsEdxeazfGnQPc0aOgYaK+6EqZMMAfRduugTAsAhQHRYXAICqZ/t4+XdTL1JCzSR9gz AIUV1+bCHtvWPTaMfEmUFEqsMxmilM=X02i6</property>
+    <property name="attachments.dir">${confluenceHome}/attachments</property>
+    <property name="confluence.setup.server.id">BOWF-WKGO-P2CO-FEIG</property>
+    <property name="confluence.webapp.context.path"></property>
+    <property name="hibernate.c3p0.acquire_increment">1</property>
+    <property name="hibernate.c3p0.idle_test_period">100</property>
+    <property name="hibernate.c3p0.max_size">60</property>
+    <property name="hibernate.c3p0.max_statements">0</property>
+    <property name="hibernate.c3p0.min_size">20</property>
+    <property name="hibernate.c3p0.preferredTestQuery">select 1</property>
+    <property name="hibernate.c3p0.timeout">30</property>
+    <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+    <property name="hibernate.connection.isolation">2</property>
+    <property name="hibernate.connection.password">{{ confluence_database_password }}</property>
+    <property name="hibernate.connection.url">{{ confluence_database_url }}</property>
+    <property name="hibernate.connection.username">{{ confluence_database_username }}</property>
+    <property name="hibernate.database.lower_non_ascii_supported">false</property>
+    <property name="hibernate.dialect">com.atlassian.confluence.impl.hibernate.dialect.PostgreSQLDialect</property>
+    <property name="hibernate.setup">true</property>
+    <property name="jwt.private.key">{{ confluence_jwt_private_key }}</property>
+    <property name="jwt.public.key">{{ confluence_jwt_public_key }}</property>
+    <property name="lucene.index.dir">${localHome}/index</property>
+    <property name="synchrony.btf">true</property>
+    <property name="synchrony.encryption.disabled">true</property>
+    <property name="synchrony.proxy.enabled">true</property>
+    <property name="webwork.multipart.saveDir">${localHome}/temp</property>
+  </properties>
+</confluence-configuration>

@@ -1,0 +1,44 @@
+- hosts: localhost
+  vars_files:
+    - ./vars/delete-vm-var.yml
+  tasks:
+    - name: Get Token
+      uri:
+        url: "{{ proxmox_base_endpoint }}/json/access/ticket"
+        method: POST
+        validate_certs: no
+        body_format: form-urlencoded
+        body:
+        - [ username, "{{ proxmox_api_user }}" ]
+        - [ password, "{{ proxmox_api_password }}" ]
+        return_content: yes
+      register: auth
+
+
+    - name: Stop VM
+      uri:
+        url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ vm_id }}/status/stop"
+        method: POST
+        validate_certs: no
+        headers:
+          Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+          CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+      register: stop
+      until: stop.json.success == 1
+      retries: 10
+      delay: 60
+    
+    - name: Delete VM
+      uri:
+        url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ vm_id }}"
+        method: DELETE
+        validate_certs: no
+        headers:
+          Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+          CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+      when: stop.json.success == 1
+      register: delete
+      until: delete.json.success == 1
+      retries: 10
+      delay: 20
+

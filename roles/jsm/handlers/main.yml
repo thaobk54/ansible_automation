@@ -1,0 +1,7 @@
+---
+- name: restart jsm
+  systemd:
+    name: jsm
+    state: restarted
+    enabled: true
+    daemon_reload: yes

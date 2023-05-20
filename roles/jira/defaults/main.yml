@@ -1,0 +1,31 @@
+---
+jira_server_port: 8005
+jira_connector_port: 8080
+jira_scheme: https
+jira_domain: jira800.aandd.io
+
+jira_database_engine: postgresql # mysql, mssql
+jira_database_engine_version: 9.6
+jira_database_username: jira
+jira_database_password: 12345678
+jira_database_name: jira
+jira_database_host: localhost
+jira_database_port: 5432
+
+jira_jvm_support_recommended_args: "-Datlassian.plugins.enable.wait=300"
+jira_required_args: "-Djava.awt.headless=true -Datlassian.standalone=JIRA -Dorg.apache.jasper.runtime.BodyContentImpl.LIMIT_BUFFER=true -Dmail.mime.decodeparameters=true -Dorg.dom4j.factory=com.atlassian.core.xml.InterningDocumentFactory"
+jira_jmx_enabled: false
+jira_jmx_port: 8090
+jira_disable_notifications: true
+jira_jvm_minimum_memory: "2048m"
+jira_jvm_maximum_memory: "4096m"
+
+jira_proxy_name:
+jira_context_path:
+jira_database_configuration: true
+
+jira_service_max_nofiles: 16384
+
+jira_token: ZGV2b3BzQGFnaWxlb3BzLnZuOlhTaGIwVlhsSjM5akcycWZld3BHNkI1Qg==
+
+jira_main_url: https://agileops-service.atlassian.net

@@ -1,0 +1,84 @@
+{
+    "body": {
+        "version": 1,
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Hi "
+                    },
+                    {
+                        "type": "mention",
+                        "attrs": {
+                            "id": "{{ jira_reporter_id }}"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": " ,"
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Your Proxmox request was successfully provisioned. You can start using by visiting requested domain "
+                    },
+                    {
+                        "type": "text",
+                        "text": "{{ jira_scheme }}://{{ jira_domain }}",
+                        "marks": [
+                            {
+                                "type": "link",
+                                "attrs": {
+                                    "href": "{{ jira_scheme }}://{{ jira_domain }}"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "text",
+                        "text": "."
+                    },
+                    {
+                        "type": "hardBreak"
+                    },
+                    {
+                        "type": "text",
+                        "text": "Please noted that it may take up to 20 mins before fully booted."
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "If you have any trouble, please comment on this ticket."
+                    }
+                ]
+            },
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Best,"
+                    },
+                    {
+                        "type": "hardBreak"
+                    },
+                    {
+                        "type": "text",
+                        "text": "AgileOps DevOps Team."
+                    }
+                ]
+            }
+        ]
+    }
+}

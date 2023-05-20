@@ -1,0 +1,67 @@
+---
+- name: confluence | Create PostgreSQL user/database
+  include_tasks: postgres.yml
+  when: confluence_database_engine == "postgresql"
+  tags:
+    - postgres
+
+
+- name: confluence | Download package
+  get_url:
+    dest: "{{ ansible_env.PWD }}/confluence_installer"
+    url: "{{ confluence_url }}"
+    mode: '0755'
+
+
+- name: confluence | Update response
+  template:
+    src: response.varfile.j2
+    dest: "/tmp/response.varfile"
+    mode: 0644
+  tags:
+    - install
+
+- name: Get stats of the FS object
+  ansible.builtin.stat:
+    path: "{{ confluence_installation_dir }}"
+  register: p
+
+- name: confluence | Installation
+  become: true
+  shell: "{{ ansible_env.PWD }}/confluence_installer -q -varfile /tmp/response.varfile"
+  when: p.stat.isdir is not defined
+
+- name: confluence | Config
+  include_tasks: config.yml
+  tags:
+    - config
+
+- name: Import startup argument
+  command: sed -i '1s/^/CATALINA_OPTS="{{ item }} ${CATALINA_OPTS}"\n/' {{ confluence_installation_dir }}/bin/setenv.sh
+  with_items: "{{ startup_arguments }}"
+
+- name: confluence | Configuring service
+  ansible.builtin.service:
+    name: confluence
+    state: restarted
+
+- name: confluence | Allow all access to confluence port
+  ufw:
+    rule: allow
+    port: "{{ confluence_connector_port }}"
+    proto: tcp
+
+# register domain
+
+- name: Register domain
+  include_role:
+    name: nginx-proxy
+  vars:
+    register_domain: "{{ confluence_domain }}"
+    forward_port: "{{ confluence_connector_port }}"
+    forward_host: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+
+
+
+    

@@ -1,0 +1,26 @@
+---
+jsm_user: jira
+jsm_group: jira
+
+jsm_package: atlassian-servicedesk-{{ jsm_version }}-x64.bin
+jsm_url: https://www.atlassian.com/software/jira/downloads/binary/{{ jsm_package }}
+jsm_installation_dir: /opt/atlassian/jsm
+jsm_home_dir: /var/atlassian/application-data/jsm
+jsm_download_dir: /download
+
+jsm_database_type: postgres72
+jsm_database_type_mysql_57: mysql57
+jsm_database_type_mysql_8: mysql8
+jsm_database_type_mssql: mssql
+jsm_database_url: jdbc:postgresql://{{ jsm_database_host }}:{{ jsm_database_port }}/{{ jsm_database_name }}
+jsm_database_mysql_url: jdbc:mysql://{{ jsm_database_host }}:{{ jsm_database_port }}/{{ jsm_database_name }}?useUnicode=true&amp;characterEncoding=UTF8&amp;sessionVariables=default_storage_engine=InnoDB
+jsm_database_mssql_url: jdbc:sqlserver://{{ jsm_database_host }}:{{ jsm_database_port }};databaseName={{ jsm_database_name }}
+
+
+jsm_database_validation_query: 'select 1'
+jsm_database_validation_query_timeout: 3
+jsm_database_driver_class: 'org.postgresql.Driver'
+jsm_database_mssql_driver_class: 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+jsm_database_mysql_57_driver_class: 'com.mysql.jdbc.Driver'
+jsm_database_mysql_8_driver_class: 'com.mysql.cj.jdbc.Driver'
+

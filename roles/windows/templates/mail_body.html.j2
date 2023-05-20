@@ -1,0 +1,121 @@
+
+<div
+   id=":8o"
+   style="width: 520px;margin: auto;"
+   >
+   <div
+      style="
+      padding-top: 0px;
+      font-family: Helvetica neue, Helvetica, Arial, Verdana, sans-serif;
+      color: #205081;
+      font-size: 20px;
+      line-height: 32px;
+      text-align: left;
+      font-weight: bold;
+      "
+      >
+      <span>Your Server is created successfully</span>
+   </div>
+   <hr
+      color="#cccccc"
+      size="1"
+      style="
+      margin-top: 19px;
+      margin-bottom: 8px;
+      width: 100%;
+      "
+      />
+   <div>
+      <div
+         style="
+         padding-top: 20px;
+         font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+         color: #333333;
+         font-size: 14px;
+         line-height: 24px;
+         text-align: left;
+         font-weight: none;
+         "
+         >
+         <span>Hi {{ rdp_user }},</span>
+      </div>
+      <div
+         style="
+         padding-top: 10px;
+         font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+         color: #333333;
+         font-size: 14px;
+         line-height: 24px;
+         text-align: left;
+         font-weight: none;
+         "
+         >
+         <span
+            >You recently created a new VM. Here is your ssh credential to
+         login, and as such should be kept secret.</span
+            >
+      </div>
+      <div
+         style="
+         padding-top: 10px;
+         font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+         color: #333333;
+         font-size: 14px;
+         line-height: 24px;
+         text-align: left;
+         font-weight: none;
+         "
+         >
+         <span> You can log in via Remote Desktop using an IP address.: {{ proxmox_ip }}</span>
+      </div>
+      <div
+         style="
+         padding-top: 10px;
+         font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+         color: #333333;
+         font-size: 14px;
+         line-height: 24px;
+         text-align: left;
+         font-weight: none;
+         "
+         >
+         <span>User: {{ rdp_user }}</span>
+      </div>
+      <div
+         style="
+         padding-top: 10px;
+         font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+         color: #333333;
+         font-size: 14px;
+         line-height: 24px;
+         text-align: left;
+         font-weight: none;
+         "
+         >
+         <span>Password: {{ rdp_password }}</span>
+      </div>
+      <div
+         style="
+         padding-top: 10px;
+         font-family: Helvetica, Helvetica neue, Arial, Verdana, sans-serif;
+         color: #333333;
+         font-size: 14px;
+         line-height: 24px;
+         text-align: left;
+         font-weight: none;
+         "
+         >
+         <span>Cheers,</span><br />
+         <span>The Agileops Devops</span>
+      </div>
+      <hr
+         color="#cccccc"
+         size="1"
+         style="
+         margin-top: 19px;
+         margin-bottom: 8px;
+         width: 100%;
+         "
+         />
+   </div>
+</div>

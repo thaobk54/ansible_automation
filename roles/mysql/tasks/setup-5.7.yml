@@ -1,0 +1,96 @@
+---
+- name: Check if MySQL is already installed.
+  stat:
+    path: "{{ mysql_config_file }}"
+  register: mysql_installed
+
+- name: Update apt cache if MySQL is not yet installed.
+  apt: update_cache=yes
+  changed_when: False
+  when: not mysql_installed.stat.exists
+
+
+- name: Run command wget and mv
+  become_user: ubuntu
+  command: wget -O /tmp/mysql-apt-config_0.8.12-1_all.deb https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb 
+
+- name: select version os
+  shell: echo mysql-apt-config mysql-apt-config/repo-codename select bionic | sudo debconf-set-selections;
+- name: select version mysql
+  shell: echo mysql-apt-config mysql-apt-config/select-server select mysql-5.7 | sudo debconf-set-selections;
+  register: select
+  until: select.stderr | length == 0
+  retries: 10
+  delay: 5
+
+- name: select tools
+  shell: echo mysql-apt-config mysql-apt-config/select-tools select Enabled | sudo debconf-set-selections;
+  register: select_2
+  until: select_2.stderr | length == 0
+  retries: 10
+  delay: 5
+
+- name: select preview
+  shell: echo mysql-apt-config mysql-apt-config/select-preview select Disabled | sudo debconf-set-selections;
+  register: select_3
+  until: select_3.stderr | length == 0
+  retries: 10
+  delay: 5
+
+- name: select product ok
+  shell: echo mysql-apt-config mysql-apt-config/select-product select Ok | sudo debconf-set-selections;
+  register: select_4
+  until: select_4.stderr | length == 0
+  retries: 10
+  delay: 5
+
+- name: DPKG Binary Package
+  shell: dpkg -i /tmp/mysql-apt-config_0.8.12-1_all.deb
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  register: res_dpkg
+  until: res_dpkg.stdout | length > 0
+  retries: 10
+  delay: 60
+
+- name: Add public key mysql from ubuntu server
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 467B942D3A79BD29
+
+# update repo
+- name: Update repo
+  shell: apt update
+  register: apt_update
+
+- name: dump update
+  debug:
+    msg: "{{ apt_update }}"
+
+- name: Ensure MySQL Python libraries are installed.
+  apt:
+    name: "{{ mysql_python_package_debian }}"
+    state: present
+
+- name: Ensure MySQL packages are installed.
+  apt:
+    name: "{{ mysql_packages }}"
+    state: present
+    policy_rc_d: 101
+  register: deb_mysql_install_packages
+
+
+- name: Ensure MySQL is stopped after initial install.
+  service: "name={{ mysql_daemon }} state=stopped"
+  when: not mysql_installed.stat.exists
+
+- name: Delete innodb log files created by apt package after initial install.
+  file:
+    path: "{{ mysql_datadir }}/{{ item }}"
+    state: absent
+  with_items:
+    - ib_logfile0
+    - ib_logfile1
+  when: not mysql_installed.stat.exists
+
+

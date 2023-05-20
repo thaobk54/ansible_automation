@@ -1,0 +1,13 @@
+---
+
+  - name: checking mdadm.conf file exists or does not exist
+    stat: path=/etc/mdadm/mdadm.conf
+    register: mdadm_conf
+
+  - name: set mdadm monitor email address
+    lineinfile:
+      dest: /etc/mdadm/mdadm.conf
+      regexp: "^MAILADDR"
+      line: "MAILADDR sysadmin@aandd.io"
+      state: present
+    when: mdadm_conf.stat.exists == True

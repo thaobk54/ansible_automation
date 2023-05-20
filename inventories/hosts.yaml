@@ -1,0 +1,22 @@
+proxmox_hosts:
+  # hosts:
+  #   ansible:
+  #     ansible_host: 10.158.0.80
+  vars:
+    ansible_user: ubuntu
+    ansible_ssh_pass: !vault |
+              $ANSIBLE_VAULT;1.1;AES256
+              36383334343535636365643764396535316464646533623061353362353364373038663435343266
+              3736633439653438643032393766656635613663333836340a316236616230616238336631663364
+              33393535333830393731316339323864346665326233653733663239626664376638623531303764
+              6638623530306638380a616264616231366136393037363862343331303165636266623833363163
+              3031
+windows_hosts:
+  # hosts:
+  #   ansible:
+  #     ansible_host: 10.158.0.101
+  vars:
+    # ansible_user: Administrator
+    ansible_ssh_pass: 12345678a@
+    ansible_shell_type: cmd
+

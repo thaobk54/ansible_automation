@@ -1,0 +1,89 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    - proxmox_creation: false
+    - proxmox_hostname: Jira-{{ to_email | regex_search('([^@]+)') }}-{{'%d-%b'| strftime(ansible_date_time.epoch)}}
+    - proxmox_core: 4
+  roles:
+    - { role: proxmox, when: proxmox_creation == 'true' }
+
+
+
+- hosts: localhost
+  connection: local 
+  tasks:
+    - name: Clean postgres_hosts
+      ansible.builtin.known_hosts:
+        state: absent
+        name: "{{ hostvars[item].ansible_host if hostvars[item].ansible_host is defined else item }}"
+      with_items: "{{ groups['postgres_hosts'] }}"
+      ignore_errors: true
+
+    - name: Clean jira_hosts
+      ansible.builtin.known_hosts:
+        state: absent
+        name: "{{ hostvars[item].ansible_host if hostvars[item].ansible_host is defined else item }}"
+      with_items: "{{ groups['jira_hosts'] }}"
+      ignore_errors: true
+
+    - name: Clean proxmox_hosts
+      ansible.builtin.known_hosts:
+        state: absent
+        name: "{{ hostvars[item].ansible_host if hostvars[item].ansible_host is defined else item }}"
+      with_items: "{{ groups['proxmox_hosts'] }}"
+      ignore_errors: true
+
+    - name: verify pip3
+      command: which pip3
+      register: pip3_validation
+      ignore_errors: true
+
+    - name: download pip3
+      command: curl -O https://bootstrap.pypa.io/get-pip.py
+      when: pip3_validation.failed|bool == true
+      ignore_errors: true
+
+    - name: install pip3
+      command: python3 get-pip.py
+      when: pip3_validation.failed|bool == true
+      ignore_errors: true
+
+    - name: Install jmespath python package
+      command: python3 -m pip install jmespath
+      ignore_errors: true
+
+- hosts: proxmox_hosts
+  gather_facts: true
+  become: yes
+  tasks:
+    - block:
+        - set_fact:
+            ssh_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+            ssh_user: "{{ to_email | regex_search('([^@]+)') }}"
+            postgresql_version: '9.6'
+            jira_database_username: "{{ to_email | regex_search('([^@]+)') }}"
+            jira_database_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+        - name: Add user to VM
+          include_role:
+            name: proxmox
+            tasks_from: add_user
+        - name: Install Postgresql
+          include_role:
+            name: postgres
+        - name: Install java
+          include_role:
+            name: java
+        - name: Install jira
+          include_role:
+            name: jira
+        - name: Send mail
+          vars:
+            - mail: "jira"
+          include_role:
+            name: proxmox
+            tasks_from: sending_mail
+      rescue: 
+        - name: Error handling task
+          debug:
+            msg: "An error occurred in the playbook"  

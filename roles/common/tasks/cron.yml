@@ -1,0 +1,22 @@
+---
+
+  - name: "setup cron mailto"
+    cron:
+      name: MAILTO
+      minute: MAILTO=sysadmin@lists.aandd.io
+      hour: ""
+      day: ""
+      month: ""
+      weekday: ""
+      job: ""
+
+  - name: "install numrandom command"
+    apt: name=num-utils state=present
+
+  - name: "update /etc/crontab"
+    template:
+      src: cron/etc_crontab.j2
+      dest: /etc/crontab
+      owner: root
+      group: root
+      mode: 0644

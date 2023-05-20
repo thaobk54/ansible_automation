@@ -1,0 +1,93 @@
+---
+
+  - name: set hostname
+    tags: [ hostname ]
+    hostname: name={{ inventory_hostname_short }}
+    ignore_errors: true
+
+  - name: set etc hosts resolv
+    tags: [ hostname ]
+    lineinfile:
+      dest: /etc/hosts
+      line: "127.0.0.1 {{ inventory_hostname_short }}"
+      state: present
+      insertbefore: BOF
+    when: not (inventory_hostname_short in groups['proxmox'])
+
+  - name: set mailname
+    copy: content="aandd.io\n" dest=/etc/mailname
+
+  - name: set resolv.conf
+    template:
+      src:  conf/resolv.conf.j2
+      dest: /etc/resolv.conf
+      force: yes
+
+  - name: set vm.swappiness to 0 in /etc/sysctl.conf
+    tags: [ sysctl ]
+    sysctl: name=vm.swappiness value=5 state=present reload=yes sysctl_set=yes
+    when: managed_by_aandd and node
+
+  - name: customize SSH welcome message
+    tags: [ ssh_login ]
+    copy:
+      src:   "{{ ssh_banner }}"
+      dest:  /etc/ssh/banner.msg
+      owner: root
+      group: root
+      mode:  0644
+      force: yes
+
+  - name: customize post SSH login message
+    when: ansible_distribution == 'Ubuntu'
+    tags: [ ssh_login ]
+    template:
+      src:   ssh/00-header.j2
+      dest:  /etc/update-motd.d/00-header
+      owner: root
+      group: root
+      mode:  0755
+      force: yes
+
+  - name: add post SSH login message generator
+    when: ansible_distribution == 'Debian'
+    tags: [ ssh_login ]
+    template:
+      src:   ssh/00-header.j2
+      dest:  /tmp/gen_motd.sh
+      owner: root
+      group: root
+      mode:  0755
+      force: yes
+
+  - name: generate post SSH login message
+    when: ansible_distribution == 'Debian'
+    tags: [ ssh_login ]
+    shell: /tmp/gen_motd.sh > /etc/motd
+
+
+  - name: change sshd config to update
+    tags: [ ssh_login ]
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      backrefs: yes
+      state: present
+      regexp: '#Banner.*'
+      line: 'Banner /etc/ssh/banner.msg'
+    notify: restart sshd
+
+  - name: setup unattended upgrades
+    tags: [ unattended ]
+    when: ansible_os_family == "Debian"
+    include: unattended-upgrades.yml
+
+  - name: install etckeeper
+    include: etckeeper.yml
+    tags: [ etckeeper ]
+
+  - name: reboot notification
+    tags: [ cron ]
+    cron:
+      name:   "server reboot mail notification"
+      job:    '/bin/echo "Host {{ inventory_hostname_short }} is rebooting..." | /usr/bin/mail -s "[CRON] {{ inventory_hostname_short }} rebooting" sysadmin@lists.aandd.io'
+      special_time: "reboot"

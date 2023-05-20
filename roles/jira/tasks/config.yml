@@ -1,0 +1,48 @@
+---
+
+# - name: JIRA | Template daemon script
+#   template:
+#     src: systemd/jira.service.j2
+#     dest: /lib/systemd/system/jira.service
+#     mode: 0644
+#     owner: "{{ jira_user }}"
+#     group: "{{ jira_group }}"
+#   # notify: restart jira
+#   tags:
+#     - config
+
+# - name: JIRA | Template server configuration
+#   template:
+#     src: conf/server.xml.j2
+#     dest: "{{ jira_installation_dir }}/conf/server.xml"
+#     backup: yes
+#     mode: 0755
+#     owner: "{{ jira_user }}"
+#     group: "{{ jira_group }}"
+#   # notify: restart jira
+#   tags:
+#     - config
+
+# - name: JIRA | Template database configuration
+#   template:
+#     src: "conf/dbconfig.{{ jira_database_engine }}.xml.j2"
+#     dest: "{{ jira_home_dir }}/dbconfig.xml"
+#     backup: yes
+#     mode: 0644
+#     owner: "{{ jira_user }}"
+#     group: "{{ jira_group }}"
+#   when: jira_database_configuration
+  # notify: restart jira
+  # tags:
+  #   - config
+
+- name: JIRA | Update permission
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ jira_user }}"
+    group: "{{ jira_group }}"
+    recurse: yes
+  with_items: 
+    - "{{ jira_home_dir }}"
+    - "{{ jira_installation_dir }}"

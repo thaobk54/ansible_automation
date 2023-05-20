@@ -1,0 +1,23 @@
+---
+
+  - name: add multiverse source
+    when: 'ansible_lsb.id == "Ubuntu"'
+    template:
+      src:  apt/sources.list.j2
+      dest: /etc/apt/sources.list
+    tags: [ apt_config ]
+
+  - name: add apt config file
+    copy:
+      src: "apt/apt.conf.d/{{ item }}"
+      dest: "/etc/apt/apt.conf.d/{{ item }}"
+      owner: root
+      group: root
+      mode: 0644
+    with_items:
+      - 99progressbar
+      - 99translations
+
+  - name: update apt cache
+    apt:
+      update_cache: yes

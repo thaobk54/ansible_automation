@@ -1,0 +1,15 @@
+[Unit]
+Description=Atlassian Confluence
+After=network.target
+
+[Service]
+Type=forking
+Restart=on-failure
+PIDFile={{ confluence_installation_dir }}/work/catalina.pid
+User={{ confluence_user }}
+ExecStart={{ confluence_installation_dir }}/bin/start-confluence.sh 
+ExecStop={{ confluence_installation_dir }}/bin/stop-confluence.sh
+LimitNOFILE={{ confluence_service_max_nofiles }}
+
+[Install]
+WantedBy=multi-user.target

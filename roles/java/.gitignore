@@ -1,0 +1,5 @@
+.molecule
+.cache
+.python-version
+.project
+**/*.retry

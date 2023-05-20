@@ -1,0 +1,57 @@
+---
+
+    # OpenVZ Ubuntu/Debian templates missing /etc/cron.daily/apt
+    # https://serverfault.com/questions/568326/how-to-recreate-etc-cron-daily-apt
+  - name: install apt crontab
+    shell: apt-get -o Dpkg::Options::="--force-confmiss" --reinstall install -y apt
+    when: ansible_virtualization_type == "openvz"
+    tags: [ skip_ansible_lint ]
+    args:
+      warn: False
+
+  - name: install unattended-upgrades packages
+    apt: pkg={{ item }} state=present
+    with_items:
+      - unattended-upgrades
+      - apt-listchanges
+
+  # Ignored, since newer distros don't need this package
+  - name: install update-notifier-common
+    apt: pkg=update-notifier-common state=present
+    ignore_errors: true
+
+  - name: copy update-notifier config (no check for new release)
+    copy:
+      src: apt/release-upgrades
+      dest: /etc/update-manager/release-upgrades
+      owner: root
+      group: root
+      mode: 0644
+    ignore_errors: true
+
+  - name: create APT auto-upgrades configuration
+    copy:
+      src: apt/auto-upgrades
+      dest: /etc/apt/apt.conf.d/20auto-upgrades
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Add OS specific variables
+    include_vars: "{{ ansible_distribution }}.yml"
+
+  - name: create unattended-upgrades configuration
+    template:
+      src: apt/unattended-upgrades.j2
+      dest: /etc/apt/apt.conf.d/50unattended-upgrades
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: create apt-listchanges configuration
+    template:
+      src: apt/listchanges.conf.j2
+      dest: /etc/apt/listchanges.conf
+      owner: root
+      group: root
+      mode: 0644

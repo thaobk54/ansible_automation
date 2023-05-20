@@ -1,0 +1,48 @@
+- hosts: localhost
+  connection: local
+  vars:
+      - proxmox_creation: false
+  roles:
+      - { role: windows, when: proxmox_creation == 'true' }
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Clean proxmox_hosts
+      ansible.builtin.known_hosts:
+        state: absent
+        name: "{{ hostvars[item].ansible_host if hostvars[item].ansible_host is defined else item }}"
+      with_items: "{{ groups['proxmox_hosts'] }}"
+      ignore_errors: true
+    - name: Clean windows_hosts
+      ansible.builtin.known_hosts:
+        state: absent
+        name: "{{ hostvars[item].ansible_host if hostvars[item].ansible_host is defined else item }}"
+      with_items: "{{ groups['windows_hosts'] }}"
+      ignore_errors: true
+    
+- hosts: windows_hosts
+  gather_facts: true
+  vars:
+# If the value of the variable 'windows_type' is 'windows-10', then the value of the variable 'ansible_ssh_user' is set to 'Admin'. 
+# Otherwise, the value of the variable 'ansible_ssh_user' is set to 'Administrator    
+    - ansible_ssh_user: '{% if windows_type == "windows-10" %}Admin{% else %}Administrator{% endif %}'
+  tasks:
+    - block:
+        - set_fact:
+            rdp_password: "a@{{ lookup('password', '/dev/null length=8 chars=ascii_lowercase,ascii_uppercase,digits') }}1"
+            rdp_user: "{{ to_email | regex_search('([^@]+)') }}"
+        - name: Add user to VM
+          include_role:
+            name: windows
+            tasks_from: add_user
+        - name: Send mail
+          include_role:
+            name: windows
+            tasks_from: sending_mail
+      rescue:
+        - name: Error handling task
+          debug:
+            msg: "Windows"
+  
+

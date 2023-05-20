@@ -1,0 +1,165 @@
+"-----------------------------------------------------------
+" NeoBundle
+
+" Note: Skip initialization for vim-tiny or vim-small.
+if !1 | finish | endif
+
+if has('vim_starting')
+  set nocompatible               " Be iMproved
+
+  " Required:
+ set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
+ 
+" Required:
+call neobundle#begin(expand('~/.vim/bundle/'))
+
+" Let NeoBundle manage NeoBundle
+" Required:
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+" My Bundles here:
+" Refer to |:NeoBundle-examples|.
+" Note: You don't set neobundle setting in .gvimrc!
+
+call neobundle#end()
+
+" Required:
+filetype plugin indent on
+
+" If there are uninstalled bundles found on startup,
+" this will conveniently prompt you to install them.
+NeoBundleCheck
+
+NeoBundle 'bling/vim-airline'
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'scrooloose/syntastic'
+NeoBundle 'bufexplorer.zip'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'https://github.com/klen/python-mode.git'
+
+
+" Editing a protected file as 'sudo'
+cmap W w !sudo tee % >/dev/null<CR>
+
+" Set 'nocompatible' to ward off unexpected things that your distro might
+" have made, as well as sanely reset options when re-sourcing .vimrc
+set nocompatible
+
+" Attempt to determine the type of a file based on its name and possibly its
+" contents. Use this to allow intelligent auto-indenting for each filetype,
+" and for plugins that are filetype specific.
+filetype indent plugin on
+
+" Enable syntax highlighting
+syntax on
+
+" This causes the left and right arrow keys, as well as h and l, to wrap when
+" used at beginning or end of lines.
+set whichwrap+=<,>,h,l,[,]
+
+" Better command-line completion
+set wildmenu
+
+
+" Allow backspacing over autoindent, line breaks and start of insert action
+set backspace=indent,eol,start
+
+" When opening a new line and no filetype-specific indenting is enabled, keep
+" the same indent as the line you're currently on. Useful for READMEs, etc.
+set autoindent
+
+" Stop certain movements from always going to the first character of a line.
+" While this behaviour deviates from that of Vi, it does what most users
+" coming from other editors would expect.
+set nostartofline
+
+" Display the cursor position on the last line of the screen or in the status
+" line of a window
+set ruler
+
+" Always display the status line, even if only one window is displayed
+set laststatus=2
+
+" Instead of failing a command because of unsaved changes, instead raise a
+" dialogue asking if you wish to save changed files.
+set confirm
+
+" Use visual bell instead of beeping when doing something wrong
+set visualbell
+
+" And reset the terminal code for the visual bell. If visualbell is set, and
+" this line is also included, vim will neither flash nor beep. If visualbell
+" is unset, this does nothing.
+set t_vb=
+
+" Set the command window height to 2 lines, to avoid many cases of having to
+" "press <Enter> to continue"
+set cmdheight=2
+
+" Display line numbers on the left
+set number
+
+" Quickly time out on keycodes, but never time out on mappings
+set notimeout ttimeout ttimeoutlen=200
+
+" Indentation settings for using 2 spaces instead of tabs.
+" Do not change 'tabstop' from its default value of 8 with this setup.
+set shiftwidth=2
+set softtabstop=2
+set expandtab
+
+" Display the paste mode, + toggle with Ctrl+p
+nnoremap <C-p> :set invpaste paste?<CR>
+set pastetoggle=<C-p>
+set showmode
+
+"-----------------------------------------------------------
+" jedi
+let g:jedi#auto_vim_configuration = 0
+let g:airline_exclude_preview=1
+"-----------------------------------------------------------
+" airline
+
+" activate powerline font only if LC_POWERFONT=1
+let powerfont_on=$LC_POWERFONT
+if powerfont_on == '1'
+  let g:airline_powerline_fonts = 1
+else
+  if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+  endif
+  let g:airline_left_sep = ''
+  let g:airline_right_sep = ''
+  let g:airline_symbols.linenr = '␤'
+  let g:airline_symbols.branch = '⎇'
+  let g:airline_symbols.paste = '✹'
+  let g:airline_symbols.whitespace = '¶'
+endif
+
+set laststatus=2 
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme= 'powerlineish'
+" fix completion bug
+autocmd FileType python set completeopt-=preview
+hi Pmenu     ctermfg=lightgrey ctermbg=brown     guifg=grey60   guibg=brown 
+hi PmenuSel  ctermfg=white     ctermbg=darkgrey  guifg=white    guibg=grey40 
+
+"------------------------------------------------------------
+" NERDTree Plugin
+
+" auto open NERDTree when no files are specified
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+" toggle NERDTree with Ctrl+n
+map <C-n> :NERDTreeToggle<CR>
+
+" close NERDTree when it's the last open window
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+
+" switch between buffers
+nnoremap <silent> <S-x> :bn<CR>
+nnoremap <silent> <S-z> :bp<CR>
+nnoremap <silent> <C-c> :Kwbd<CR>
+

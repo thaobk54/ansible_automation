@@ -1,0 +1,14 @@
+---
+
+  - name: change rsyslog config to avoid CPU overload on OpenVZ container
+    ignore_errors: true
+    lineinfile:
+      dest: /etc/rsyslog.conf
+      backrefs: yes
+      state: present
+      regexp: '^(\$ModLoad imklog .*)'
+      line: '#\1'
+    tags: [ fix_syslog ]
+    notify:
+      - restart rsyslog
+

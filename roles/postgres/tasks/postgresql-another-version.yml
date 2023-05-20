@@ -1,0 +1,33 @@
+---
+- name: Download deb package for postgresql
+  shell: wget -P {{ ansible_env.PWD }} {{ item }}
+  with_items: '{{ deb_file_download }}'
+
+- name: Select note
+  shell: echo "postgresql-common postgresql-common/obsolete-major select Ok" | sudo debconf-set-selections;
+  become: true
+  register: note_result
+  until: note_result is succeeded
+  retries: 10
+  delay: 30
+
+- name: Install postgresql
+  become: true
+  shell: dpkg -i {{ ansible_env.PWD }}/*.deb
+  ignore_errors: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  until: '"dpkg: error: dpkg frontend lock is locked by another process" not in dpkg_result.stderr'
+  register: dpkg_result
+  ignore_errors: yes
+  retries: 10
+  delay: 45
+
+- name: Fix broken
+  shell: apt --fix-broken install -y
+  become: true
+  notify: restart postgresql
+
+- name: Remove deb file
+  shell: rm -rf {{ ansible_env.PWD }}/*.deb
+

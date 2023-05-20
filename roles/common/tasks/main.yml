@@ -1,0 +1,65 @@
+---
+  - name: configure apt
+    include: apt_config.yml
+    tags: [ apt_config ]
+
+  - name: setup locale
+    include: locale.yml
+    tags: [ locale ]
+
+  - name: install basic packages
+    include: packages.yml
+    tags: [ packages, minimal ]
+
+  - name: ensure some basic configuration (host, etc...)
+    when: managed_by_aandd and not is_docker
+    include: base.yml
+    tags: [ base ]
+
+  - name: setup fail2ban.yml
+    when: managed_by_aandd
+    include: fail2ban.yml
+    tags: [ fail2ban ]
+
+  - name: setup ntp
+    when: managed_by_aandd
+    include: ntp.yml
+    tags: [ ntp ]
+
+  - name: setup exim satellite
+    when: managed_by_aandd and ansible_lsb.id == "Ubuntu" and inventory_hostname_short != 'email-gateway'
+    include: exim.yml
+    tags: [ exim ]
+
+  - name: configure cron mailto
+    when: managed_by_aandd and ansible_lsb.id == "Ubuntu"
+    include: cron.yml
+    tags: [ cron ]
+
+  - name: install aandd system admin command
+    include: sysadmin_tools.yml
+    tags: [ anhoi, update_anhoi ]
+
+  - name: fix syslog on OpenVZ
+    when: ansible_virtualization_type == "openvz" and managed_by_aandd
+    include: fix_syslog.yml
+    tags: [ fix_syslog ]
+
+  - name: setup system wide default user config
+    when: managed_by_aandd
+    include: user_defaults.yml
+    tags: [ user_defaults ]
+
+  - name: setup aandd user
+    when: managed_by_aandd or force_aandd_auth
+    include: user_aandd.yml
+    tags: [ user_aandd ]
+
+  - name: setup mdraid monitoring email
+    tags: [ mdraid ]
+    include: mdraid.yml
+    when: node
+
+  - name: upgade python
+    tags: [ upgrade_python ]
+    include: python.yml

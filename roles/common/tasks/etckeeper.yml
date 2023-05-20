@@ -1,0 +1,31 @@
+---
+- name: Install etckeeper configuration directory
+  file:
+    state=directory
+    dest=/etc/etckeeper
+    owner=0
+    group=0
+    mode=0755
+
+- name: Install etckeeper configuration
+  template:
+    src=etckeeper/etckeeper.j2
+    dest=/etc/etckeeper/etckeeper.conf
+    owner=0
+    group=0
+    mode=0644
+
+- name: Install etckeeper packages
+  apt: name={{ item }} state=present
+  with_items:
+    - etckeeper
+    - "{{ etckeeper_vcs }}"
+
+- name: Add entries to .gitignore
+  when: etckeeper_vcs == 'git' and etckeeper_gitignore != [ ]
+  with_items:
+    - "{{ etckeeper_gitignore }}"
+  lineinfile:
+    dest='/etc/.gitignore'
+    line="{{ item }}"
+    insertbefore='BOF'

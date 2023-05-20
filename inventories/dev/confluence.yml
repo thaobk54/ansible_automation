@@ -1,0 +1,6 @@
+confluence_hosts:
+  hosts:
+    confluence101:
+      ansible_host: 192.168.3.16
+      ansible_user: ubuntu
+      ansible_python_interpreter: /usr/bin/python3

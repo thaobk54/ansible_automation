@@ -1,0 +1,15 @@
+- debug:
+    msg: "{{rdp_user}} is {{ rdp_password }}"
+- name: Create new rdp user
+  win_user:
+    name: "{{ rdp_user }}"
+    password: "{{ rdp_password }}"
+    groups:
+      - Administrators
+      - Remote Desktop Users
+    update_password: on_create
+    password_never_expires: yes
+- name: Ensure {{ rdp_user }} is present
+  win_user:
+    name: "{{ rdp_user }}"
+    state: present

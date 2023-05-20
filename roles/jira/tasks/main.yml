@@ -1,0 +1,104 @@
+---
+# For ubuntu 20.04
+- name: Install acl
+  package:
+      name: "acl"
+
+- name: update apt cache
+  apt:
+      update_cache: yes
+
+- name: JIRA | Create PostgreSQL user/database
+  include_tasks: postgres.yml
+  when: jira_database_engine == "postgresql"
+  tags:
+      - postgres
+
+- name: JIRA | Install dependencies
+  ansible.builtin.apt:
+      name: fontconfig
+      state: present
+
+- name: JIRA | Create path for Jira's folders
+  ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      mode: 0755
+  with_items:
+      - "{{ jira_download_dir }}"
+  tags:
+      - install
+
+- name: JIRA | Download package
+  get_url:
+      dest: "{{ jira_download_dir }}/jira_installer"
+      url: "{{ jira_url }}"
+      mode: "0755"
+  register: jira_downloaded
+  tags:
+      - install
+
+- name: JIRA | Update response
+  template:
+      src: response.varfile.j2
+      dest: "/tmp/response.varfile"
+      mode: 0644
+  tags:
+      - install
+
+- name: Get stats of the FS object
+  ansible.builtin.stat:
+      path: "{{ jira_installation_dir }}"
+  register: p
+
+- name: JIRA | Installation
+  shell: "{{ jira_download_dir }}/jira_installer -q -varfile /tmp/response.varfile;"
+  when: p.stat.isdir is not defined
+
+- name: JIRA | Config
+  include_tasks: config.yml
+  tags:
+      - config
+
+- name: JIRA | Configuring service
+  ansible.builtin.service:
+      name: jira
+      state: restarted
+
+- name: JIRA | Allow all access to JIRA port
+  ufw:
+      rule: allow
+      port: "{{ jira_connector_port }}"
+      proto: tcp
+
+# register domain
+
+# - name: Register domain
+#   include_role:
+#       name: nginx-proxy
+#   vars:
+#       register_domain: "{{ jira_domain }}"
+#       forward_port: "{{ jira_connector_port }}"
+#       forward_host: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+# - name: Comment Issue
+#   uri:
+#       url: "{{ jira_main_url }}/rest/api/3/issue/{{ jira_issue_key }}/comment"
+#       method: POST
+#       body: "{{ lookup('template', './jira/callback_comment.json.j2') }}"
+#       body_format: json
+#       headers:
+#           Authorization: "Basic {{ jira_token }}"
+#       status_code: 201
+#   when: jira_issue_key != "False"
+
+# - name: Transition Issue
+#   uri:
+#       url: "{{ jira_main_url }}/rest/api/3/issue/{{ jira_issue_key }}/transitions"
+#       method: POST
+#       body: "{{ lookup('template', './jira/transition.json.j2') }}"
+#       body_format: json
+#       headers:
+#           Authorization: "Basic {{ jira_token }}"
+#       status_code: 204
+#   when: jira_issue_key != "False"

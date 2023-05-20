@@ -1,0 +1,12 @@
+---
+
+  - name: Add repo for python
+    apt_repository:
+      repo: ppa:jonathonf/python-2.7
+      state: present
+      update_cache: yes
+  - name: install python 2.7.14
+    apt:
+      name: python
+      state: latest
+      update_cache: yes

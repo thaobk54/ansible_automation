@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+    - set_fact:
+        # db_string_default: "{{ applications }}"
+        # db_string: "{{ applications | select('search','mysql|postgresql') | join('') }}"
+        date: "{{'%d-%b' | strftime(ansible_date_time.epoch)}}"
+
+    # - set_fact:
+    #     db_engine: "{{ db_string.split(':')[0] }}"
+    #     db_version: "{{ db_string.split(':')[1] }}"
+    # - debug:
+    #     msg: "{{ db_engine }} is {{ db_version }} and {{ db_string }}"
+    - debug: 
+        msg: "{{ date }}"

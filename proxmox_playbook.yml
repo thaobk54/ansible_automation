@@ -1,0 +1,114 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+      - proxmox_creation: false
+      - proxmox_hostname: Linux-{{ to_email | regex_search('([^@]+)') }}-{{'%d-%b'| strftime(ansible_date_time.epoch)}}
+  roles:
+      - { role: proxmox, when: proxmox_creation == 'true' }
+
+- hosts: localhost
+  connection: local
+  tasks:
+      - name: Clean proxmox_hosts
+        ansible.builtin.known_hosts:
+            state: absent
+            name: "{{ hostvars[item].ansible_host if hostvars[item].ansible_host is defined else item }}"
+        with_items: "{{ groups['proxmox_hosts'] }}"
+        ignore_errors: true
+
+      - name: verify pip3
+        command: which pip3
+        register: pip3_validation
+        ignore_errors: true
+
+      - name: download pip3
+        command: curl -O https://bootstrap.pypa.io/get-pip.py
+        when: pip3_validation.failed|bool == true
+        ignore_errors: true
+
+      - name: install pip3
+        command: python3 get-pip.py
+        when: pip3_validation.failed|bool == true
+        ignore_errors: true
+
+      - name: Install jmespath python package
+        command: python3 -m pip install jmespath
+        ignore_errors: true
+
+- hosts: proxmox_hosts
+  gather_facts: true
+  become: yes
+  vars_files:
+    - ./vars/proxmox.yml
+  tasks:
+    - block:
+#Set username and password with email and random password
+        - set_fact:
+            ssh_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+            ssh_user: "{{ to_email | regex_search('([^@]+)') }}"
+#Set username and password database if applications have mysql or postgresql
+        - set_fact:    
+            database_user: "{{ to_email | regex_search('([^@]+)') }}"
+            database_password: "{{ lookup('password', '/dev/null length=10 chars=ascii_letters') }}"
+            database_engine_version_string: "{{ applications | select('search','mysql|postgresql') | join('') }}" 
+          when: (applications | select('search','mysql|postgresql') | list | length > 0)
+#Set db_engine and db_version if mysql or postgresql in applications
+        - set_fact:
+            db_engine: "{{ database_engine_version_string.split(':')[0] }}"
+            db_version: "{{ database_engine_version_string.split(':')[1] }}"
+          when: database_engine_version_string is defined
+        - name: Add user to VM
+          include_role:
+            name: proxmox
+            tasks_from: add_user
+        - name: Install Applications
+          include_role:
+            name: proxmox
+            tasks_from: install_applications
+        - name: Post actions
+          include_role:
+            name: proxmox
+            tasks_from: post_actions
+        - name: Send mail
+          include_role:
+            name: proxmox
+            tasks_from: sending_mail
+      rescue:
+        - name: Error handling task
+          debug:
+            msg: "Proxmox"
+        
+          
+  # roles:
+  #   - { role: geerlingguy.nginx }
+
+
+# - hosts: postgres_hosts:proxmox_hosts
+#   vars:
+#       - confluence_version: false
+#       - jira_version: false
+#   gather_facts: true
+#   become: yes
+#   roles:
+#       - {
+#             role: postgres,
+#             when: confluence_version|bool  == 'true' or jira_version|bool  == 'true',
+#         }
+
+# - hosts: jira_hosts:proxmox_hosts
+#   vars:
+#       - jira_version: false
+#   gather_facts: true
+#   become: yes
+#   roles:
+#       - { role: java, when: jira_version|bool  == 'true' }
+#       - { role: jira, when: jira_version|bool  == 'true' }
+
+# - hosts: confluence_hosts:proxmox_hosts
+#   vars:
+#       - confluence_version: false
+#   gather_facts: true
+#   become: yes
+#   roles:
+#       - { role: confluence, when: confluence_version|bool  == 'true' }

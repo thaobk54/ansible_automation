@@ -1,0 +1,54 @@
+---
+
+fail2ban:
+  email: sysadmin@lists.aandd.io
+  ignoreip: 
+
+exim:
+  queue_interval: 10m
+  email_smarthost: 127.0.2.1::25
+
+etckeeper_vcs: 'git'
+
+etckeeper_git_commit_options: ""
+etckeeper_hg_commit_options: ""
+etckeeper_bzr_commit_options: ""
+etckeeper_darcs_commit_options: "-a"
+
+etckeeper_avoid_special_file_warning: false
+etckeeper_avoid_daily_autocommits: false
+etckeeper_avoid_commit_before_install: false
+
+# ignore vim and docker registry directory
+
+etckeeper_gitignore:
+  - 'vim/*'
+  - 'registry/*'
+
+etckeeper_highlevel_package_manager: 'apt'
+etckeeper_lowlevel_package_manager: 'dpkg'
+
+locale_support:
+  - en_US.UTF-8
+  - fr_FR.UTF-8
+
+localepurge_nopurge:
+  - en
+  - en_US
+  - en_US.UTF-8
+  - fr
+  - fr_FR
+  - fr_FR.UTF-8
+
+locale_lang: en_US.UTF-8
+locale_all: en_US.UTF-8
+locale_language: en_US.UTF-8
+locale_numeric: en_US.UTF-8
+locale_time: en_US.UTF-8
+locale_monetary: en_US.UTF-8
+locale_paper: en_US.UTF-8
+locale_identification: en_US.UTF-8
+locale_name: en_US.UTF-8
+locale_address: en_US.UTF-8
+locale_telephone: en_US.UTF-8
+locale_measurement: en_US.UTF-8

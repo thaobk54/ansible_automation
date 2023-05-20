@@ -1,0 +1,157 @@
+---
+- name: Get Token
+  uri:
+    url: "{{ proxmox_base_endpoint }}/json/access/ticket"
+    method: POST
+    validate_certs: no
+    body_format: form-urlencoded
+    body:
+    - [ username, "{{ proxmox_api_user }}" ]
+    - [ password, "{{ proxmox_api_password }}" ]
+    return_content: yes
+  register: auth
+
+- name: Get next id
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/cluster/nextid?_dc={{ ansible_date_time.epoch }}"
+    method: GET
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    return_content: yes
+  register: next_resp
+
+- name: Clone VM from template
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ clone_id }}/clone"
+    method: POST
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+    - [ newid, "{{ next_resp.json.data }}" ]
+    - [ name, "{{ proxmox_hostname }}" ]
+    - [ target, "{{ proxmox_node }}" ]
+    - [ full, "1" ]
+    - [ storage, "{{ proxmox_storage }}"]
+    return_content: yes
+
+- name: Check clone status
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/config?_dc={{ ansible_date_time.epoch }}"
+    method: GET
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+  register: config_resp
+  until: config_resp.json.data.lock is undefined
+  retries: 15
+  delay: 15
+
+- name: Update config
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/config"
+    method: PUT
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+    - [ memory, "{{ proxmox_memory }}"]
+    - [ cores, "{{ proxmox_core }}"]
+    return_content: yes
+
+- name: Update disk
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/resize"
+    method: PUT
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+    - [ disk, "scsi0"]
+    - [ size, "+{{ (disk_size|int - 20)|int }}G"]
+    return_content: yes
+  when: disk_size|int > 20
+
+- name: Start
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/status/start"
+    method: POST
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"  
+
+- name: Wait the startup
+  pause:
+    minutes: 1
+
+
+- name: Get network interface
+  uri:
+    url: "{{ proxmox_base_endpoint }}/json/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/agent/network-get-interfaces"
+    method: GET
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    return_content: yes
+  register: net_resp
+  until: net_resp.status == 200
+  retries: 10
+  delay: 15
+
+- name: Update static ip
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/config"
+    method: PUT
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+    - [ ipconfig0, "ip={{ net_resp.json.data.result[0].get('ip-addresses')[1].get('ip-address') }}/22,gw={{ proxmox_gateway }}" ]
+    return_content: yes
+- debug:
+    msg: "{{ net_resp.json.data.result[0].get('ip-addresses')[1].get('ip-address') }} "
+- name: Regenerate image step 1
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/config"
+    method: PUT
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+    - [ ide2, "none,media=cdrom"]
+    return_content: yes
+
+- name: Regenerate image step 2
+  uri:
+    url: "{{ proxmox_base_endpoint }}/extjs/nodes/{{ proxmox_node }}/qemu/{{ next_resp.json.data }}/config"
+    method: PUT
+    validate_certs: no
+    headers:
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+    - [ ide2, "local-lvm:cloudinit"]
+    return_content: yes
+
+
+- name: add a host to proxmox group
+  add_host:
+    name: "{{ net_resp.json.data.result[0].get('ip-addresses')[1].get('ip-address') }}"
+    groups: "{{ hosts_group }}"
+

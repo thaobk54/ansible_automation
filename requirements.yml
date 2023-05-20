@@ -1,0 +1,6 @@
+
+roles:
+  - name: geerlingguy.nginx
+  - name: geerlingguy.docker
+
+#Copy to role folder to run ansible galaxy
